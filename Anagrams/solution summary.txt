@@ -1,0 +1,89 @@
+Two strings are anagram only when:
+1. They have identical length
+2. They have identical characters
+
+We will solve this problem using those conditions.
+
+First we will group potential anagram string which have identical length to a list
+
+	while (list.Count > 0)
+	{
+		//split to group of string with identical length
+		group = list.RemoveAtLength<string>(list[0].Length);
+		
+		//only group which have more than 2 string will be processed
+		//because anagram required 2 string with identical length
+		if (group.Count > 1)
+			candidates.Add(group);
+	}
+	
+RemoveAtLength is an extension method. It will get all string which have identical length into new list and delete them in original list
+
+	/// <summary>
+	/// get all string from original list with identical length to another list
+	/// then remove those string
+	/// </summary>
+	/// <typeparam name="T"></typeparam>
+	/// <param name="lst"></param>
+	/// <param name="length"></param>
+	/// <returns></returns>
+	public static List<String> RemoveAtLength<T>(this List<string> lst, int length)
+	{
+		List<string> matchLength = lst.Where(x => x.Length == length).ToList();
+
+		matchLength.ForEach(x => lst.Remove(x));
+
+		return matchLength;
+	}
+	
+Then we will process each of those groups to see any anagrams inside it:
+
+	//process each anagram candidate group
+	for (int i = 0; i < candidates.Count(); i++)
+	{
+		ProcessPotentialGroup(candidates[i]);
+	}
+	
+ProcessPotentialGroup method will take a pair of strings and see if they are anagram
+
+	/// <summary>
+	/// process potential group to see if is there any anagram
+	/// </summary>
+	static void ProcessPotentialGroup(List<string> list)
+	{
+		for (int i = 0; i < list.Count() - 1; i++)
+		{
+			for (int j = i + 1; j < list.Count(); j++)
+			{
+				if (IsAnagram(list[i], list[j]))
+				{
+					if (!anagrams.Contains(list[i]))
+						anagrams.Add(list[i]);
+
+					if (!anagrams.Contains(list[j]))
+						anagrams.Add(list[j]);
+				}
+			}
+		}
+	}
+	
+IsAnagram will see if a pair of strings are anagram
+
+	/// <summary>
+	/// check if two string is anagram
+	/// </summary>
+	/// <param name="first"></param>
+	/// <param name="second"></param>
+	/// <returns></returns>
+	static bool IsAnagram(string first, string second)
+	{
+		for (int i = 0; i < first.Length; i++)
+		{
+			//if there is an mismatch character
+			//these strings are not anagram
+			if (second.IndexOf(first[i]) == -1)
+				return false;
+		}
+
+		return true;
+	}
